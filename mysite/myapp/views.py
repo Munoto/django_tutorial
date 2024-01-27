@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Product
 
@@ -27,3 +27,28 @@ def add_item(request):
         item = Product(name=name, price=price, description=description, image=image)
         item.save()
     return render(request, "additem.html")
+
+
+def update_item(request, my_id):
+    item = Product.objects.get(id=my_id)
+    context = {'item': item}
+
+    if request.method == "POST":
+        item.name = request.POST.get("name")
+        item.price = request.POST.get("price")
+        item.description = request.POST.get("description")
+        item.image = request.FILES.get("upload", item.image)
+        item.save()
+        return redirect("/myapp/")
+
+    return render(request, "updateitem.html", context)
+
+def delete_item(request, my_id):
+    item = Product.objects.get(id=my_id)
+    context = {'item': item}
+
+    if request.method == "POST":
+        item.delete()
+        return redirect("/myapp/")
+
+    return render(request, "deleteitem.html", context)
